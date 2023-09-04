@@ -5,12 +5,11 @@
 # Contributor: Ashley Whetter <(firstname) @ awhetter.co.uk>
 # Contributor: Eothred <yngve.levinsen@gmail.com>
 
-pkgname=spotify
-pkgver='1.2.18.999'
-epoch=1
-_commit=g9b38fc27
+pkgname=spotify-1.1
+pkgver='1.1.84.716'
+_commit=gc5f8b819
 pkgrel=1
-pkgdesc='A proprietary music streaming service'
+pkgdesc='A proprietary music streaming service (old UI)'
 arch=('x86_64')
 license=('custom')
 url='https://www.spotify.com'
@@ -18,52 +17,30 @@ depends=('alsa-lib>=1.0.14' 'gtk3' 'libxss' 'desktop-file-utils' 'openssl' 'nss'
 optdepends=('ffmpeg4.4: Adds support for playback of local files'
             'zenity: Adds support for importing local files'
             'libnotify: Desktop notifications')
+makedepends=("squashfs-tools")
 options=('!strip')
+conflicts=('spotify')
 
-# NOTE: We switched from stable to testing on 18th march, as the spotify
-# stable repository is always outdated. Testing seems to be in sync with snap:
-# https://snapcraft.io/spotify
-# http://repository.spotify.com/dists/testing/Release
-# http://repository.spotify.com/dists/testing/non-free/binary-amd64/Packages
-# http://repository.spotify.com/dists/testing/Release.gpg
 source=('spotify.protocol'
         'LICENSE'
-        "${pkgname}-${pkgver}-${_commit}-x86_64.deb::http://repository.spotify.com/pool/non-free/s/spotify-client/spotify-client_${pkgver}.${_commit}_amd64.deb"
-        # GPG signature check
-        "${pkgname}-${pkgver}-${pkgrel}-Release::http://repository.spotify.com/dists/testing/Release"
-        "${pkgname}-${pkgver}-${pkgrel}-Release.sig::http://repository.spotify.com/dists/testing/Release.gpg"
-        "${pkgname}-${pkgver}-${pkgrel}-x86_64-Packages::http://repository.spotify.com/dists/testing/non-free/binary-amd64/Packages")
+        "spotify-${pkgver}.${_commit}.snap::http://api.snapcraft.io/api/v1/snaps/download/pOBIoZ2LrCB3rDohMxoYGnbN14EHOgD7_60.snap")
+        # snap source: https://github.com/flathub/com.spotify.Client/blob/221c019f44ee838de7128c34992f6d462bb75d5a/com.spotify.Client.json#L218
+
 sha512sums=('999abe46766a4101e27477f5c9f69394a4bb5c097e2e048ec2c6cb93dfa1743eb436bde3768af6ba1b90eaac78ea8589d82e621f9cbe7d9ab3f41acee6e8ca20'
             '2e16f7c7b09e9ecefaa11ab38eb7a792c62ae6f33d95ab1ff46d68995316324d8c5287b0d9ce142d1cf15158e61f594e930260abb8155467af8bc25779960615'
-            '39a57cfa059f4f61fc6a400c22b8ec3bbd87cfd6b014e1048e98c158412aa4db3e5a1fa339f2ecc3355f3ca082ee1cacba7dd3b8ffff7300f9220c90f5465459'
-            'SKIP'
-            'SKIP'
-            'SKIP')
-
-# Import key with:
-# curl -sS https://download.spotify.com/debian/pubkey_7A3A762FAFD4A51F.gpg | gpg --import -
-validpgpkeys=('E27409F51D1B66337F2D2F417A3A762FAFD4A51F') # Spotify Public Repository Signing Key <tux@spotify.com>
-# Old Keys:
-# F9A211976ED662F00E59361E5E3C45D7B312C643
-# 8FD3D9A8D3800305A9FFF259D1742AD60D811D58
-# 931FF8E79F0876134EDDBDCCA87FF9DF48BF1C90
-# 2EBF997C15BDA244B6EBF5D84773BD5E130D1D45
-
-prepare() {
-    # Validate hashes from the PGP signed "Release" file
-    echo "$(grep non-free/binary-amd64/Packages ${pkgname}-${pkgver}-${pkgrel}-Release | tail -n 2 | head -n 1 | awk '{print $1}') ${pkgname}-${pkgver}-${pkgrel}-x86_64-Packages" \
-        > "${pkgname}-${pkgver}-x86_64-Packages.sha256"
-    sha256sum -c "${pkgname}-${pkgver}-x86_64-Packages.sha256"
-
-    echo "$(grep SHA512 ${pkgname}-${pkgver}-${pkgrel}-x86_64-Packages | head -n 1 | awk '{print $2}') ${pkgname}-${pkgver}-${_commit}-x86_64.deb" \
-        > "${pkgname}-${pkgver}-x86_64.deb.sha512"
-    sha512sum -c "${pkgname}-${pkgver}-x86_64.deb.sha512"
-}
+            '1209b956822d8bb661daa2c88616bed403ec26dc22c6b866cecff59235c56112284c2f99aa06352fc0df6fcd15225a6ad60afd3b4ff4d7b948ab83e70ab31a71')
 
 package() {
     cd "${srcdir}"
 
-    tar -xzf data.tar.gz --no-same-owner -C "${pkgdir}"
+    unsquashfs -f -d $pkgdir spotify-$pkgver.$_commit.snap
+
+    # cleanup to match AUR spotify package
+    rm -rf $pkgdir/{lib,gnome-platform,data-dir,snap,etc,var,meta}
+    rm -rf $pkgdir/usr/{bin/*,lib}
+    rm -rf $pkgdir/usr/share/{X11,apport,bug,doc-base,fonts,glib-2.0,libdrm,libthai,lintian,locale,man,mime,pkgconfig,xml}
+    find $pkgdir/usr/share/doc/ -mindepth 1 -type d ! -name spotify-client -exec rm -rf {} +
+    find $pkgdir/usr/share/doc/ -type l ! -delete
 
     # Enable spotify to open URLs from the webapp
     sed -i 's/^Exec=.*/Exec=spotify --uri=%U/' "${pkgdir}"/usr/share/spotify/spotify.desktop

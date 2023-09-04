@@ -8,7 +8,7 @@
 pkgname=spotify-1.1
 pkgver='1.1.84.716'
 _commit=gc5f8b819
-pkgrel=1
+pkgrel=2
 pkgdesc='A proprietary music streaming service (old UI)'
 arch=('x86_64')
 license=('custom')
@@ -44,6 +44,9 @@ package() {
 
     # Enable spotify to open URLs from the webapp
     sed -i 's/^Exec=.*/Exec=spotify --uri=%U/' "${pkgdir}"/usr/share/spotify/spotify.desktop
+
+    # Fix desktop icon
+    sed -i "s/^Icon=.*/Icon=spotify-client/g" $pkgdir/usr/share/spotify/spotify.desktop
 
     install -Dm644 "${pkgdir}"/usr/share/spotify/spotify.desktop "${pkgdir}"/usr/share/applications/spotify.desktop
     install -Dm644 "${pkgdir}"/usr/share/spotify/icons/spotify-linux-512.png "${pkgdir}"/usr/share/pixmaps/spotify-client.png

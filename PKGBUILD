@@ -17,7 +17,7 @@ depends=('alsa-lib>=1.0.14' 'gtk3' 'libxss' 'desktop-file-utils' 'openssl' 'nss'
 optdepends=('ffmpeg4.4: Adds support for playback of local files'
             'zenity: Adds support for importing local files'
             'libnotify: Desktop notifications')
-makedepends=("squashfs-tools")
+makedepends=('squashfs-tools')
 options=('!strip')
 provides=('spotify')
 conflicts=('spotify')
@@ -32,7 +32,7 @@ sha512sums=('999abe46766a4101e27477f5c9f69394a4bb5c097e2e048ec2c6cb93dfa1743eb43
             '1209b956822d8bb661daa2c88616bed403ec26dc22c6b866cecff59235c56112284c2f99aa06352fc0df6fcd15225a6ad60afd3b4ff4d7b948ab83e70ab31a71')
 
 package() {
-    cd "${srcdir}"
+    cd $srcdir
 
     unsquashfs -f -d $pkgdir spotify-$pkgver.$_commit.snap
 
@@ -44,33 +44,33 @@ package() {
     find $pkgdir/usr/share/doc/ -type l ! -delete
 
     # Enable spotify to open URLs from the webapp
-    sed -i 's/^Exec=.*/Exec=spotify --uri=%U/' "${pkgdir}"/usr/share/spotify/spotify.desktop
+    sed -i 's/^Exec=.*/Exec=spotify --uri=%U/' $pkgdir/usr/share/spotify/spotify.desktop
 
     # Fix desktop icon
-    sed -i "s/^Icon=.*/Icon=spotify-client/g" $pkgdir/usr/share/spotify/spotify.desktop
+    sed -i 's/^Icon=.*/Icon=spotify-client/' $pkgdir/usr/share/spotify/spotify.desktop
 
-    install -Dm644 "${pkgdir}"/usr/share/spotify/spotify.desktop "${pkgdir}"/usr/share/applications/spotify.desktop
-    install -Dm644 "${pkgdir}"/usr/share/spotify/icons/spotify-linux-512.png "${pkgdir}"/usr/share/pixmaps/spotify-client.png
+    install -Dm644 $pkgdir/usr/share/spotify/spotify.desktop $pkgdir/usr/share/applications/spotify.desktop
+    install -Dm644 $pkgdir/usr/share/spotify/icons/spotify-linux-512.png $pkgdir/usr/share/pixmaps/spotify-client.png
 
     for size in 22 24 32 48 64 128 256 512; do
-        install -Dm644 "${pkgdir}/usr/share/spotify/icons/spotify-linux-$size.png" \
-            "${pkgdir}/usr/share/icons/hicolor/${size}x${size}/apps/spotify.png"
+        install -Dm644 $pkgdir/usr/share/spotify/icons/spotify-linux-$size.png \
+            $pkgdir/usr/share/icons/hicolor/$size\x$size/apps/spotify.png
     done
 
     # Move spotify binary to its proper location
-    mkdir -p "${pkgdir}"/opt/spotify
-    mv "${pkgdir}/usr/share/spotify" "${pkgdir}/opt/"
+    mkdir -p $pkgdir/opt/spotify
+    mv $pkgdir/usr/share/spotify $pkgdir/opt
 
     # Symlink spotify binary which is located in /opt
-    ln -sf /opt/spotify/spotify "${pkgdir}/usr/bin/spotify"
+    ln -sf /opt/spotify/spotify $pkgdir/usr/bin/spotify
 
     # Copy protocol file for KDE
-    install -Dm644 "${srcdir}/spotify.protocol" "${pkgdir}/usr/share/kservices5/spotify.protocol"
+    install -Dm644 $srcdir/spotify.protocol $pkgdir/usr/share/kservices5/spotify.protocol
 
     # Install license
     # https://www.spotify.com/legal/end-user-agreement
-    install -Dm 644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+    install -Dm 644 LICENSE $pkgdir/usr/share/licenses/$pkgname/LICENSE
 
     # Fix permissions
-    chmod -R go-w "${pkgdir}"
+    chmod -R go-w $pkgdir
 }

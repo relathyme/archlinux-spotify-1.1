@@ -8,7 +8,7 @@
 pkgname=spotify-1.1
 pkgver='1.1.84.716'
 _commit=gc5f8b819
-pkgrel=2
+pkgrel=3
 pkgdesc='A proprietary music streaming service (old UI)'
 arch=('x86_64')
 license=('custom')
@@ -19,6 +19,7 @@ optdepends=('ffmpeg4.4: Adds support for playback of local files'
             'libnotify: Desktop notifications')
 makedepends=("squashfs-tools")
 options=('!strip')
+provides=('spotify')
 conflicts=('spotify')
 
 source=('spotify.protocol'

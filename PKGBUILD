@@ -41,7 +41,7 @@ package() {
     rm -rf $pkgdir/usr/{bin/*,lib}
     rm -rf $pkgdir/usr/share/{X11,apport,bug,doc-base,fonts,glib-2.0,libdrm,libthai,lintian,locale,man,mime,pkgconfig,xml}
     find $pkgdir/usr/share/doc/ -mindepth 1 -type d ! -name spotify-client -exec rm -rf {} +
-    find $pkgdir/usr/share/doc/ -type l ! -delete
+    find $pkgdir/usr/share/doc/ -type l -delete
 
     # Enable spotify to open URLs from the webapp
     sed -i 's/^Exec=.*/Exec=spotify --uri=%U/' $pkgdir/usr/share/spotify/spotify.desktop

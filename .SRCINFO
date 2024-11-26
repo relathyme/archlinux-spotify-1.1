@@ -5,6 +5,7 @@ pkgbase = spotify-1.1
 	url = https://www.spotify.com
 	arch = x86_64
 	license = custom
+	makedepends = squashfs-tools
 	depends = alsa-lib>=1.0.14
 	depends = gtk3
 	depends = libxss
@@ -17,7 +18,8 @@ pkgbase = spotify-1.1
 	optdepends = ffmpeg4.4: Adds support for playback of local files
 	optdepends = zenity: Adds support for importing local files
 	optdepends = libnotify: Desktop notifications
-	makedepends = squashfs-tools
+	provides = spotify
+	conflicts = spotify
 	options = !strip
 	source = spotify.protocol
 	source = LICENSE
